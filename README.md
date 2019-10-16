@@ -19,63 +19,6 @@ SM3算法的压缩函数与SHA-256的压缩函数具有相似的结构,但是SM3
 ![Image text](https://github.com/gytsg/SM3/blob/master/images/6.png)
 Demo完整输出
 ![Image text](https://github.com/gytsg/SM3/blob/master/images/7.png)
-
-
-/**
- * \brief          SM3 generate stretch data
- *
- * \param originalMessage      Original Message Data
- * \param keylength            length of the secret key
- * \param hash                 Original Signature
- * \param added                Added Message Data
- * \param newSig               New Signature
- */
-/*
-* SM3 generate stretched data
-*/
-vector<unsigned char>* GenerateStretchedData(vector<unsigned char> originalMessage, int keylength,
-                                             unsigned char * hash, vector<unsigned char> added,
-                                             unsigned char * newSig)
-{
-	vector<unsigned char> * ret = new vector<unsigned char>();
-	for(unsigned int x = 0; x < originalMessage.size(); x++)
-		ret->push_back(originalMessage[x]);
-	int tailLength = ret->size() + keylength;
-	tailLength *= 8;
-	ret->push_back(0x80);
-	while((ret->size() + keylength + 8) % 64 != 0)
-	{
-		ret->push_back(0x00);
-	}
-	for (int i = 0; i < 4; ++i)
-		ret->push_back(0x00);
-	ret->push_back((tailLength >> 24) & 0xFF);
-	ret->push_back((tailLength >> 16) & 0xFF);
-	ret->push_back((tailLength >> 8) & 0xFF);
-	ret->push_back((tailLength) & 0xFF);
-	sm3_context stretch;
-	sm3_starts(&stretch);
-	stretch.total[0] = (ret->size() + keylength);
-	stretch.state[0] = hash[3] | (hash[2] << 8) | (hash[1] << 16) | (hash[0] << 24);
-	stretch.state[1] = hash[7] | (hash[6] << 8) | (hash[5] << 16) | (hash[4] << 24);
-	stretch.state[2] = hash[11] | (hash[10] << 8) | (hash[9] << 16) | (hash[8] << 24);
-	stretch.state[3] = hash[15] | (hash[14] << 8) | (hash[13] << 16) | (hash[12] << 24);
-	stretch.state[4] = hash[19] | (hash[18] << 8) | (hash[17] << 16) | (hash[16] << 24);
-	stretch.state[5] = hash[23] | (hash[22] << 8) | (hash[21] << 16) | (hash[20] << 24);
-	stretch.state[6] = hash[27] | (hash[26] << 8) | (hash[25] << 16) | (hash[24] << 24);
-	stretch.state[7] = hash[31] | (hash[30] << 8) | (hash[29] << 16) | (hash[28] << 24);
-	unsigned char * toadd = new unsigned char[added.size()];
-	for(unsigned int x = 0; x < added.size(); x++)
-	{
-		toadd[x] = added[x];
-	}
-	sm3_update(&stretch, toadd, added.size());
-	sm3_finish(&stretch, newSig);
-
-	delete [] toadd;
-	for(unsigned int x = 0; x < added.size(); x++)
-	{
-		ret->push_back(added.at(x));
-	}
-	return ret;
-}
+主要函数代码
+![image text](https://github.com/gytsg/SM3/blob/master/images/8.png)
+![image text](https://github.com/gytsg/SM3/blob/master/images/9.png)
